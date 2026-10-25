@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfers — Advanced Banking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <div class="logo-icon">🏦</div>
+            <div class="logo-info">
+                <span class="logo-text">BankMS</span>
+                <span class="logo-sub">Enterprise Core</span>
+            </div>
+        </a>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Overview</div>
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section-title">Banking Core</div>
+            <a href="customers.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Customers</span>
+            </a>
+            <a href="accounts.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span>Accounts</span>
+            </a>
+            <a href="transfers.html" class="nav-item active">
+                <span class="nav-icon">💸</span>
+                <span>Transfers</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>Transactions</span>
+            </a>
+            <a href="loans.html" class="nav-item">
+                <span class="nav-icon">🏛️</span>
+                <span>Loans</span>
+            </a>
+
+            <div class="nav-section-title">Administration</div>
+            <a href="employees.html" class="nav-item">
+                <span class="nav-icon">👔</span>
+                <span>Employees</span>
+            </a>
+            <a href="branches.html" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span>Branches</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <div class="status-label">
+                    <span class="status-dot offline" id="connectionDot"></span>
+                    <span id="connectionLabel">Checking Backend...</span>
+                </div>
+                <button class="demo-toggle-btn" onclick="checkBackendConnection(true)">Retry</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <div id="systemBanner" class="system-banner"></div>
+
+        <div class="page-header">
+            <div class="page-title-group">
+                <h1 class="page-title">Fund Transfers & Wire Settlements</h1>
+                <p class="page-subtitle">Initiate secure inter-account fund transfers and track settlement audits</p>
+            </div>
+        </div>
+
+        <!-- INITIATE TRANSFER CARD -->
+        <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3); background: linear-gradient(180deg, #1f2937 0%, #151d2a 100%);">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">💸 Initiate Real-Time Transfer</div>
+                    <div class="card-subtitle">Atomic transaction with instant balance debit and credit verification</div>
+                </div>
+            </div>
+
+            <form id="transferForm" onsubmit="handleTransferSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Sender Account (From) <span class="required">*</span></label>
+                        <select id="fromAccountSelect" required onchange="handleSenderAccountChange()">
+                            <option value="">-- Choose Debiting Account --</option>
+                        </select>
+                        <span class="form-hint" id="senderBalanceHint">Available: ₹0.00</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Receiver Account (To) <span class="required">*</span></label>
+                        <select id="toAccountSelect" required>
+                            <option value="">-- Choose Crediting Account --</option>
+                        </select>
+                        <span class="form-hint">Must be different from sender account</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Transfer Amount (₹) <span class="required">*</span></label>
+                        <input type="number" id="transferAmount" min="1" step="0.01" placeholder="Enter transfer amount" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description / Transfer Memo</label>
+                        <input type="text" id="transferDescription" placeholder="e.g. Invoice settlement, monthly allowance">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                    <button type="submit" class="btn btn-primary" id="initiateBtn" style="min-width: 200px;">
+                        Confirm & Transfer Funds
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TRANSFER AUDIT TRAIL -->
+        <div class="card">
+            <div class="table-toolbar">
+                <div class="table-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="transferSearchInput" placeholder="Search reference number, account..." oninput="filterTransfers()">
+                </div>
+                <div class="table-filter-group">
+                    <select id="transferStatusFilter" class="filter-select" onchange="filterTransfers()">
+                        <option value="">All Statuses</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="transfersTable">
+                    <thead>
+                        <tr>
+                            <th>Ref. Number</th>
+                            <th>From Account</th>
+                            <th>To Account</th>
+                            <th>Transferred Amount</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transfersTableBody">
+                        <tr><td colspan="6" class="loading-text">Loading wire transfer logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/transfers.js"></script>
+</body>
+</html>

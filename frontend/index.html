@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Advanced Banking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <div class="logo-icon">🏦</div>
+            <div class="logo-info">
+                <span class="logo-text">BankMS</span>
+                <span class="logo-sub">Enterprise Core</span>
+            </div>
+        </a>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Overview</div>
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section-title">Banking Core</div>
+            <a href="customers.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Customers</span>
+            </a>
+            <a href="accounts.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span>Accounts</span>
+            </a>
+            <a href="transfers.html" class="nav-item">
+                <span class="nav-icon">💸</span>
+                <span>Transfers</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>Transactions</span>
+            </a>
+            <a href="loans.html" class="nav-item">
+                <span class="nav-icon">🏛️</span>
+                <span>Loans</span>
+            </a>
+
+            <div class="nav-section-title">Administration</div>
+            <a href="employees.html" class="nav-item">
+                <span class="nav-icon">👔</span>
+                <span>Employees</span>
+            </a>
+            <a href="branches.html" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span>Branches</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <div class="status-label">
+                    <span class="status-dot offline" id="connectionDot"></span>
+                    <span id="connectionLabel">Checking Backend...</span>
+                </div>
+                <button class="demo-toggle-btn" onclick="checkBackendConnection(true)">Retry</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <!-- Top Status Banner if backend is not started -->
+        <div id="systemBanner" class="system-banner"></div>
+
+        <div class="page-header">
+            <div class="page-title-group">
+                <h1 class="page-title">Executive Dashboard</h1>
+                <p class="page-subtitle">Real-time banking metrics, liquidity status, and system operations</p>
+            </div>
+            <div class="header-actions">
+                <a href="transfers.html" class="btn btn-secondary">💸 Quick Transfer</a>
+                <a href="customers.html" class="btn btn-primary">+ New Customer</a>
+            </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-top">
+                    <span class="stat-label">Total Customers</span>
+                    <div class="stat-icon">👤</div>
+                </div>
+                <div class="stat-value" id="statCustomers">—</div>
+                <div class="stat-footer">Registered account holders</div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-top">
+                    <span class="stat-label">Active Accounts</span>
+                    <div class="stat-icon">💳</div>
+                </div>
+                <div class="stat-value" id="statAccounts">—</div>
+                <div class="stat-footer">Savings & Current accounts</div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-top">
+                    <span class="stat-label">Total Deposits</span>
+                    <div class="stat-icon">💰</div>
+                </div>
+                <div class="stat-value" id="statTotalBalance">—</div>
+                <div class="stat-footer">Aggregated client liquidity</div>
+            </div>
+
+            <div class="stat-card amber">
+                <div class="stat-top">
+                    <span class="stat-label">Loan Portfolio</span>
+                    <div class="stat-icon">🏛️</div>
+                </div>
+                <div class="stat-value" id="statLoanVolume">—</div>
+                <div class="stat-footer"><span id="statLoanCount">0</span> active loans issued</div>
+            </div>
+        </div>
+
+        <!-- QUICK SHORTCUTS & OPERATIONS -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+            <!-- RECENT TRANSACTIONS TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">📋 Recent Transactions</div>
+                        <div class="card-subtitle">Latest debits, deposits, and settlement entries</div>
+                    </div>
+                    <a href="transactions.html" class="btn btn-secondary btn-sm">View All →</a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance After</th>
+                                <th>Description</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactionsTableBody">
+                            <tr><td colspan="6" class="loading-text">Loading transaction feed...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- OPERATIONAL SUMMARY & QUICK LINKS -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🏢 Branch Network</div>
+                        <a href="branches.html" class="btn btn-secondary btn-sm">Manage</a>
+                    </div>
+                    <div id="branchSummaryList" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="loading-text" style="padding: 16px !important;">Loading branches...</div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(145deg, #1f2937 0%, #172033 100%);">
+                    <div class="card-title" style="margin-bottom: 8px;">⚡ Fast Navigation</div>
+                    <p class="card-subtitle" style="margin-bottom: 16px;">Direct actions for daily banking branch operations</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="accounts.html" class="btn btn-secondary" style="justify-content: flex-start;">💳 Open New Account</a>
+                        <a href="transfers.html" class="btn btn-secondary" style="justify-content: flex-start;">💸 Process Fund Transfer</a>
+                        <a href="loans.html" class="btn btn-secondary" style="justify-content: flex-start;">🏛️ Issue New Loan</a>
+                        <a href="employees.html" class="btn btn-secondary" style="justify-content: flex-start;">👔 View Employee Directory</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

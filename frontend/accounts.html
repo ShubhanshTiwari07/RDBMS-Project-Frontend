@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts — Advanced Banking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <div class="logo-icon">🏦</div>
+            <div class="logo-info">
+                <span class="logo-text">BankMS</span>
+                <span class="logo-sub">Enterprise Core</span>
+            </div>
+        </a>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Overview</div>
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section-title">Banking Core</div>
+            <a href="customers.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Customers</span>
+            </a>
+            <a href="accounts.html" class="nav-item active">
+                <span class="nav-icon">💳</span>
+                <span>Accounts</span>
+            </a>
+            <a href="transfers.html" class="nav-item">
+                <span class="nav-icon">💸</span>
+                <span>Transfers</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>Transactions</span>
+            </a>
+            <a href="loans.html" class="nav-item">
+                <span class="nav-icon">🏛️</span>
+                <span>Loans</span>
+            </a>
+
+            <div class="nav-section-title">Administration</div>
+            <a href="employees.html" class="nav-item">
+                <span class="nav-icon">👔</span>
+                <span>Employees</span>
+            </a>
+            <a href="branches.html" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span>Branches</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <div class="status-label">
+                    <span class="status-dot offline" id="connectionDot"></span>
+                    <span id="connectionLabel">Checking Backend...</span>
+                </div>
+                <button class="demo-toggle-btn" onclick="checkBackendConnection(true)">Retry</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <div id="systemBanner" class="system-banner"></div>
+
+        <div class="page-header">
+            <div class="page-title-group">
+                <h1 class="page-title">Account Management</h1>
+                <p class="page-subtitle">Manage client savings & current accounts, check live balances and ledger status</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddAccountModal()">+ Open New Account</button>
+        </div>
+
+        <!-- STATS OVERVIEW -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-top">
+                    <span class="stat-label">Total Accounts</span>
+                    <div class="stat-icon">💳</div>
+                </div>
+                <div class="stat-value" id="totalAccountsCount">—</div>
+                <div class="stat-footer">Under bank management</div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-top">
+                    <span class="stat-label">Savings Deposits</span>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="stat-value" id="totalSavingsBalance">—</div>
+                <div class="stat-footer">High-yield retail savings</div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-top">
+                    <span class="stat-label">Current / Commercial</span>
+                    <div class="stat-icon">🏢</div>
+                </div>
+                <div class="stat-value" id="totalCurrentBalance">—</div>
+                <div class="stat-footer">Business checking accounts</div>
+            </div>
+        </div>
+
+        <!-- DATA CARD -->
+        <div class="card">
+            <!-- TOOLBAR -->
+            <div class="table-toolbar">
+                <div class="table-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="accountSearchInput" placeholder="Search by account number, customer, branch..." oninput="filterAccounts()">
+                </div>
+                <div class="table-filter-group">
+                    <select id="typeFilter" class="filter-select" onchange="filterAccounts()">
+                        <option value="">All Types</option>
+                        <option value="Savings">Savings Account</option>
+                        <option value="Current">Current Account</option>
+                    </select>
+
+                    <select id="statusFilter" class="filter-select" onchange="filterAccounts()">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ACCOUNTS TABLE -->
+            <div class="table-responsive">
+                <table class="data-table" id="accountsTable">
+                    <thead>
+                        <tr>
+                            <th>Account No.</th>
+                            <th>Customer Name</th>
+                            <th>Account Type</th>
+                            <th>Branch</th>
+                            <th>Available Balance</th>
+                            <th>Opened On</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTableBody">
+                        <tr><td colspan="8" class="loading-text">Loading account records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- OPEN ACCOUNT MODAL -->
+        <div class="modal-overlay" id="addAccountModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Open New Bank Account</h2>
+                    <button class="modal-close" onclick="closeAddAccountModal()">✕</button>
+                </div>
+                <form id="addAccountForm" onsubmit="handleCreateAccount(event)">
+                    <div class="form-group">
+                        <label>Select Customer <span class="required">*</span></label>
+                        <select id="newAccountCustomer" required>
+                            <option value="">-- Choose Account Holder --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Branch <span class="required">*</span></label>
+                        <select id="newAccountBranch" required>
+                            <option value="">-- Choose Branch --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Account Type <span class="required">*</span></label>
+                            <select id="newAccountType" required onchange="toggleAccountTypeFields()">
+                                <option value="Savings">Savings Account</option>
+                                <option value="Current">Current Account</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Initial Deposit (₹) <span class="required">*</span></label>
+                            <input type="number" id="newAccountBalance" min="0" step="0.01" placeholder="5000" required>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Savings Fields -->
+                    <div id="savingsFields" class="form-row">
+                        <div class="form-group">
+                            <label>Interest Rate (% p.a.)</label>
+                            <input type="number" id="newAccountInterestRate" step="0.1" value="4.0" placeholder="4.0">
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Balance (₹)</label>
+                            <input type="number" id="newAccountMinBalance" step="100" value="10000" placeholder="10000">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Current Account Fields -->
+                    <div id="currentFields" class="form-group" style="display: none;">
+                        <label>Overdraft Limit (₹)</label>
+                        <input type="number" id="newAccountOverdraft" step="1000" value="50000" placeholder="50000">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Opening Date</label>
+                            <input type="date" id="newAccountDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Status</label>
+                            <select id="newAccountStatus">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddAccountModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveAccountBtn">Create Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- EDIT ACCOUNT STATUS / BALANCE MODAL -->
+        <div class="modal-overlay" id="editAccountModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="editModalTitle">Edit Account</h2>
+                    <button class="modal-close" onclick="closeEditAccountModal()">✕</button>
+                </div>
+                <form id="editAccountForm" onsubmit="handleUpdateAccount(event)">
+                    <input type="hidden" id="editAccountId">
+
+                    <div class="form-group">
+                        <label>Account Balance (₹) <span class="required">*</span></label>
+                        <input type="number" id="editAccountBalance" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status <span class="required">*</span></label>
+                        <select id="editAccountStatus" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditAccountModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="updateAccountBtn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ACCOUNT ACTIVITY / LEDGER MODAL -->
+        <div class="modal-overlay" id="accountLedgerModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="ledgerTitle">Account Activity</h2>
+                    <button class="modal-close" onclick="closeLedgerModal()">✕</button>
+                </div>
+                <div id="ledgerContent">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeLedgerModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/accounts.js"></script>
+</body>
+</html>

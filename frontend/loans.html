@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loans — Advanced Banking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <div class="logo-icon">🏦</div>
+            <div class="logo-info">
+                <span class="logo-text">BankMS</span>
+                <span class="logo-sub">Enterprise Core</span>
+            </div>
+        </a>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Overview</div>
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section-title">Banking Core</div>
+            <a href="customers.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Customers</span>
+            </a>
+            <a href="accounts.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span>Accounts</span>
+            </a>
+            <a href="transfers.html" class="nav-item">
+                <span class="nav-icon">💸</span>
+                <span>Transfers</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>Transactions</span>
+            </a>
+            <a href="loans.html" class="nav-item active">
+                <span class="nav-icon">🏛️</span>
+                <span>Loans</span>
+            </a>
+
+            <div class="nav-section-title">Administration</div>
+            <a href="employees.html" class="nav-item">
+                <span class="nav-icon">👔</span>
+                <span>Employees</span>
+            </a>
+            <a href="branches.html" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span>Branches</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <div class="status-label">
+                    <span class="status-dot offline" id="connectionDot"></span>
+                    <span id="connectionLabel">Checking Backend...</span>
+                </div>
+                <button class="demo-toggle-btn" onclick="checkBackendConnection(true)">Retry</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <div id="systemBanner" class="system-banner"></div>
+
+        <div class="page-header">
+            <div class="page-title-group">
+                <h1 class="page-title">Loan Management & Credit Facilities</h1>
+                <p class="page-subtitle">Track issued loan agreements, interest terms, EMI amortization, and collections</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddLoanModal()">+ Issue New Loan</button>
+        </div>
+
+        <!-- STATS OVERVIEW -->
+        <div class="stats-grid">
+            <div class="stat-card amber">
+                <div class="stat-top">
+                    <span class="stat-label">Total Principal Disbursed</span>
+                    <div class="stat-icon">🏛️</div>
+                </div>
+                <div class="stat-value" id="statPrincipalDisbursed">—</div>
+                <div class="stat-footer">Cumulative loan value</div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-top">
+                    <span class="stat-label">Total Recovered (Paid)</span>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="stat-value" id="statTotalRecovered">—</div>
+                <div class="stat-footer">Principal repayments received</div>
+            </div>
+
+            <div class="stat-card blue">
+                <div class="stat-top">
+                    <span class="stat-label">Active Loans</span>
+                    <div class="stat-icon">📑</div>
+                </div>
+                <div class="stat-value" id="statActiveLoansCount">—</div>
+                <div class="stat-footer">Accounts currently in repayment</div>
+            </div>
+        </div>
+
+        <!-- LOANS TABLE CARD -->
+        <div class="card">
+            <div class="table-toolbar">
+                <div class="table-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="loanSearchInput" placeholder="Search by customer, loan type, ID..." oninput="filterLoans()">
+                </div>
+                <div class="table-filter-group">
+                    <select id="loanStatusFilter" class="filter-select" onchange="filterLoans()">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Closed">Closed / Settled</option>
+                        <option value="Defaulted">Defaulted</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="loansTable">
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Customer Name</th>
+                            <th>Loan Category</th>
+                            <th>Principal</th>
+                            <th>Rate</th>
+                            <th>Total Repaid</th>
+                            <th>Outstanding</th>
+                            <th>Status</th>
+                            <th>Issued Date</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loansTableBody">
+                        <tr><td colspan="10" class="loading-text">Loading credit facilities...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ISSUE NEW LOAN MODAL -->
+        <div class="modal-overlay" id="addLoanModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Issue New Client Loan</h2>
+                    <button class="modal-close" onclick="closeAddLoanModal()">✕</button>
+                </div>
+                <form id="addLoanForm" onsubmit="handleCreateLoan(event)">
+                    <div class="form-group">
+                        <label>Customer (Borrower) <span class="required">*</span></label>
+                        <select id="loanCustomerSelect" required>
+                            <option value="">-- Choose Borrower --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Loan Product <span class="required">*</span></label>
+                            <select id="loanTypeSelect" required>
+                                <option value="Home Loan">Home Loan</option>
+                                <option value="Personal Loan">Personal Loan</option>
+                                <option value="Education Loan">Education Loan</option>
+                                <option value="Vehicle Loan">Vehicle Loan</option>
+                                <option value="Business Loan">Business Commercial Loan</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Principal Amount (₹) <span class="required">*</span></label>
+                            <input type="number" id="loanPrincipal" min="1000" step="1000" placeholder="500000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Interest Rate (% p.a.) <span class="required">*</span></label>
+                            <input type="number" id="loanInterestRate" min="0" step="0.1" value="8.5" placeholder="8.5" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Disbursement Date <span class="required">*</span></label>
+                            <input type="date" id="loanStartDate" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddLoanModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveLoanBtn">Disburse Loan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RECORD LOAN PAYMENT (EMI) MODAL -->
+        <div class="modal-overlay" id="loanPaymentModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="paymentModalTitle">Record Loan Repayment</h2>
+                    <button class="modal-close" onclick="closePaymentModal()">✕</button>
+                </div>
+                <form id="loanPaymentForm" onsubmit="handleLoanPaymentSubmit(event)">
+                    <input type="hidden" id="paymentLoanId">
+
+                    <div class="detail-item" style="margin-bottom: 16px;">
+                        <div class="detail-label">Outstanding Balance</div>
+                        <div class="detail-value amount-positive" id="paymentRemainingBal">₹0.00</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Repayment Amount (₹) <span class="required">*</span></label>
+                        <input type="number" id="paymentAmount" min="1" step="0.01" placeholder="10000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Date <span class="required">*</span></label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                        <button type="submit" class="btn btn-success" id="savePaymentBtn">Submit Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- LOAN REPAYMENT HISTORY MODAL -->
+        <div class="modal-overlay" id="loanHistoryModal">
+            <div class="modal" style="max-width: 650px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="historyModalTitle">Amortization & Payment History</h2>
+                    <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+                </div>
+                <div id="loanHistoryContent">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeHistoryModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/loans.js"></script>
+</body>
+</html>
